@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,6 +15,8 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Favorite
@@ -194,7 +197,29 @@ fun homeScreen(navController: NavController) {
                             Icon(Icons.Filled.Search, contentDescription = "Item Search")
                         }
                     }
-                    Text("Display items here...")
+                    //a column that stacks rows of item types
+                    Column {
+                        Text("Laptops")
+
+                        //row of laptops (images will be rendered instead later)
+                        Row (
+                            Modifier.horizontalScroll(rememberScrollState(0))
+                            ) {
+                            repeat(10) {
+                                Text("Laptop #$it", modifier = Modifier.padding(10.dp))
+                            }
+                        }
+                        Text("Smartphones")
+
+                        //row of smartphones (images will be rendered instead later)
+                        Row (
+                            Modifier.horizontalScroll(rememberScrollState(0))
+                        ) {
+                            repeat(10) {
+                                Text("Smartphone #$it", modifier = Modifier.padding(10.dp))
+                            }
+                        }
+                    }
                 }
             }
         }
