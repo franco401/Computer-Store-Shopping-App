@@ -83,6 +83,9 @@ class MainActivity : ComponentActivity() {
                         composable("homeScreen") {
                             homeScreen(navController)
                         }
+                        composable("accountScreen") {
+                            accountScreen(navController)
+                        }
                     }
                 }
             }
@@ -163,7 +166,7 @@ fun homeScreen(navController: NavController) {
                     Icon(Icons.Filled.Home, contentDescription = "Home")
                 }
 
-                IconButton(onClick = { /**/ }) {
+                IconButton(onClick = { navController.navigate("accountScreen") }) {
                     Icon(Icons.Filled.AccountBox, contentDescription = "My Account")
                 }
 
@@ -197,6 +200,62 @@ fun homeScreen(navController: NavController) {
         }
     )
 
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun accountScreen(navController: NavController) {
+    var username by remember { mutableStateOf("") }
+
+    //builds UI with the top and bottom bars and the screen's content in between
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Your Account") }
+            )
+        },
+        bottomBar = {BottomAppBar(
+            actions = {
+                IconButton(onClick = { navController.navigate("homeScreen") }) {
+                    Icon(Icons.Filled.Home, contentDescription = "Home")
+                }
+
+                IconButton(onClick = { /**/ }) {
+                    Icon(Icons.Filled.AccountBox, contentDescription = "My Account")
+                }
+
+                IconButton(onClick = { /**/ }) {
+                    Icon(Icons.Filled.ShoppingCart, contentDescription = "My Cart")
+                }
+
+                IconButton(onClick = { /**/ }) {
+                    Icon(Icons.Filled.Favorite, contentDescription = "My Purchases")
+                }
+            }
+        )},
+
+        //the content in the middle of the top and bottom bars
+        content = { innerPadding ->
+            Box(
+                modifier = Modifier
+                    .padding(innerPadding),
+                contentAlignment = Alignment.Center
+            ) {
+                Column {
+                    Button(onClick = { globalUsername = ""; loggedIn = false; navController.navigate("loginScreen") }) {
+                        Text(text = "Logout")
+                    }
+                    OutlinedTextField(value = username, onValueChange = {username = it}, label = {Text(text = "Username")})
+                    Button(onClick = { globalUsername = username }) {
+                        Text(text = "Update Username")
+                    }
+                    Button(onClick = { globalUsername = ""; loggedIn = false; navController.navigate("signUpScreen") }) {
+                        Text("Delete Account")
+                    }
+                }
+            }
+        }
+    )
 }
 
 @Composable
