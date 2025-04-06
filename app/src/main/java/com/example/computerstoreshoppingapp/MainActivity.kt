@@ -4,12 +4,15 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.requiredWidth
@@ -19,6 +22,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
@@ -41,6 +45,8 @@ import com.example.computerstoreshoppingapp.ui.theme.ComputerStoreShoppingAppThe
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.TopAppBarColors
@@ -55,6 +61,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 
 //used for very basic authentication
@@ -62,6 +70,14 @@ var loggedIn: Boolean = false
 
 //to be displayed in the home screen
 var globalUsername: String = ""
+
+//currently selected item when item clicks on an item in the home screen to view
+var currentItem: Item = Item()
+
+var items = arrayOf(
+    Item("AN5", "Acer Nitro 5", 700.00, 100, R.drawable.acer_nitro_5_laptop),
+    Item("SGS25", "Samsung Galaxy S25", 860.00, 50, R.drawable.samsung_galaxy_s25)
+)
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -88,6 +104,9 @@ class MainActivity : ComponentActivity() {
                         }
                         composable("accountScreen") {
                             accountScreen(navController)
+                        }
+                        composable("viewItemScreen") {
+                            viewItemScreen(navController)
                         }
                     }
                 }
@@ -201,22 +220,32 @@ fun homeScreen(navController: NavController) {
                     Column {
                         Text("Laptops")
 
-                        //row of laptops (images will be rendered instead later)
+                        //row of laptops
                         Row (
                             Modifier.horizontalScroll(rememberScrollState(0))
                             ) {
-                            repeat(10) {
-                                Text("Laptop #$it", modifier = Modifier.padding(10.dp))
+                            for (item in items) {
+                                //clickable image
+                                Image(painter = painterResource(item.Image), contentDescription = null, modifier = Modifier
+                                    .width(100.dp)
+                                    .then(Modifier.height(100.dp))
+                                    .then(Modifier.clickable {
+                                        currentItem = item; navController.navigate("viewItemScreen")
+                                    }))
                             }
                         }
                         Text("Smartphones")
 
-                        //row of smartphones (images will be rendered instead later)
+                        //row of smartphones
                         Row (
                             Modifier.horizontalScroll(rememberScrollState(0))
                         ) {
                             repeat(10) {
-                                Text("Smartphone #$it", modifier = Modifier.padding(10.dp))
+                                //clickable image
+                                Image(painter = painterResource(R.drawable.samsung_galaxy_s25), contentDescription = null, modifier = Modifier
+                                    .width(100.dp)
+                                    .then(Modifier.height(100.dp))
+                                    .then(Modifier.clickable { navController.navigate("viewItemScreen") }))
                             }
                         }
                     }
@@ -276,6 +305,84 @@ fun accountScreen(navController: NavController) {
                     }
                     Button(onClick = { globalUsername = ""; loggedIn = false; navController.navigate("signUpScreen") }) {
                         Text("Delete Account")
+                    }
+                }
+            }
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun viewItemScreen(navController: NavController) {
+    //used for dropdown menu
+    var expanded by remember { mutableStateOf(false) }
+
+    /*
+    * list of integers from 1 to current item's max quantity
+    * this will be used for the dropdown menu
+    * */
+    var options = List(currentItem.Qty) { "${it + 1}" }
+
+    //builds UI with the top and bottom bars and the screen's content in between
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("${currentItem.Name}") }
+            )
+        },
+        bottomBar = {BottomAppBar(
+            actions = {
+                IconButton(onClick = { navController.navigate("homeScreen") }) {
+                    Icon(Icons.Filled.Home, contentDescription = "Home")
+                }
+
+                IconButton(onClick = { navController.navigate("accountScreen") }) {
+                    Icon(Icons.Filled.AccountBox, contentDescription = "My Account")
+                }
+
+                IconButton(onClick = { /**/ }) {
+                    Icon(Icons.Filled.ShoppingCart, contentDescription = "My Cart")
+                }
+
+                IconButton(onClick = { /**/ }) {
+                    Icon(Icons.Filled.Favorite, contentDescription = "My Purchases")
+                }
+            }
+        )},
+
+        //the content in the middle of the top and bottom bars
+        content = { innerPadding ->
+            Box(
+                modifier = Modifier
+                    .padding(innerPadding),
+                contentAlignment = Alignment.Center
+            ) {
+                Column {
+                    Image(painter = painterResource(currentItem.Image), contentDescription = null, modifier = Modifier
+                        .width(400.dp)
+                        .then(Modifier.height(100.dp)))
+                    Text(text = "$${currentItem.Price}")
+                    Text(text = "Stock: ${currentItem.Qty}")
+                    Text(text = "Rating ${currentItem.Rating}")
+                    Text(text = "Condition: ${currentItem.Condition}")
+
+                    Row {
+                        IconButton(onClick = { /**/ }) {
+                            Icon(Icons.Filled.ShoppingCart, contentDescription = "Add To Cart")
+                        }
+
+                        //icon button used to expand dropdown menu
+                        IconButton(onClick = { expanded = !expanded }) {
+                            Icon(Icons.Default.ArrowDropDown, contentDescription = "More options")
+                        }
+
+                        //dropdown menu to pick a quantity to add to cart
+                        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                            options.forEach { option ->
+                                DropdownMenuItem(text = { Text(option) }, onClick = { /*TODO*/ })
+                            }
+                        }
                     }
                 }
             }
