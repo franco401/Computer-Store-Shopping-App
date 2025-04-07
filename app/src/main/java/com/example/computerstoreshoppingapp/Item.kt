@@ -6,7 +6,12 @@ class Item {
     var ID: String = ""
     var Name: String = ""
     var Price: Double = 0.0
+
+    //amount in user's cart
     var Qty: Int = 0
+
+    //amount available to buy
+    var Stock: Int = 0
 
     //image resource to render
     @DrawableRes
@@ -19,11 +24,11 @@ class Item {
     //empty constructor with default values initialized above
     constructor()
 
-    constructor(ID: String, Name: String, Price: Double, Qty: Int, @DrawableRes Image: Int) {
+    constructor(ID: String, Name: String, Price: Double, Stock: Int, @DrawableRes Image: Int) {
         this.ID = ID
         this.Name = Name
         this.Price = Price
-        this.Qty = Qty
+        this.Stock = Stock
         this.Image = Image
     }
 }
