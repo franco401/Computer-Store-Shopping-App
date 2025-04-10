@@ -388,6 +388,7 @@ fun addItemToCart(itemToAdd: Item, qtyToAdd: Int) {
             }
         }
     } else {
+        //adding new item to cart
         itemToAdd.Qty = qtyToAdd
         cartItems.add(itemToAdd)
         itemsAddedToCart.add(itemToAdd.Name)
@@ -535,7 +536,13 @@ fun shoppingCartScreen(navController: NavController, context: Context) {
                                 Text(text = "Qty")
                                 Text(text = "${item.Qty}")
                             }
-                            IconButton(onClick = { /**/ }) {
+                            IconButton(onClick = {
+                                //removing item from cart
+                                cartItems.remove(item);
+                                itemsAddedToCart.remove(item.Name);
+                                buildToastMessage("Removed ${item.Name}", context);
+                                if (cartItems.size == 0) navController.navigate("homeScreen");
+                            }) {
                                 Icon(Icons.Filled.Clear, contentDescription = "Remove")
                             }
                         }
