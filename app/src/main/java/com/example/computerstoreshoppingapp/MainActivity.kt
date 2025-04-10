@@ -90,6 +90,9 @@ var cartItems = ArrayList<Item>()
 * */
 var itemsAddedToCart = ArrayList<String>()
 
+//list of user's purchased items
+var purchasedItems = ArrayList<Item>()
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -121,7 +124,16 @@ class MainActivity : ComponentActivity() {
                             viewItemScreen(navController, super.getBaseContext())
                         }
                         composable("shoppingCartScreen") {
+                            //also pass in MainActivity's Context to access toast messages
                             shoppingCartScreen(navController, super.getBaseContext())
+                        }
+                        composable("checkOutScreen") {
+                            //also pass in MainActivity's Context to access toast messages
+                            checkOutScreen(navController, super.getBaseContext())
+                        }
+                        composable("purchasesScreen") {
+                            //also pass in MainActivity's Context to access toast messages
+                            purchasesScreen(navController, super.getBaseContext())
                         }
                     }
                 }
@@ -211,7 +223,7 @@ fun homeScreen(navController: NavController) {
                     Icon(Icons.Filled.ShoppingCart, contentDescription = "My Cart")
                 }
 
-                IconButton(onClick = { /**/ }) {
+                IconButton(onClick = { navController.navigate("purchasesScreen") }) {
                     Icon(Icons.Filled.Favorite, contentDescription = "My Purchases")
                 }
             }
@@ -299,7 +311,7 @@ fun accountScreen(navController: NavController) {
                     Icon(Icons.Filled.ShoppingCart, contentDescription = "My Cart")
                 }
 
-                IconButton(onClick = { /**/ }) {
+                IconButton(onClick = { navController.navigate("purchasesScreen") }) {
                     Icon(Icons.Filled.Favorite, contentDescription = "My Purchases")
                 }
             }
@@ -431,7 +443,7 @@ fun viewItemScreen(navController: NavController, context: Context) {
                     Icon(Icons.Filled.ShoppingCart, contentDescription = "My Cart")
                 }
 
-                IconButton(onClick = { /**/ }) {
+                IconButton(onClick = { navController.navigate("purchasesScreen") }) {
                     Icon(Icons.Filled.Favorite, contentDescription = "My Purchases")
                 }
             }
@@ -509,7 +521,7 @@ fun shoppingCartScreen(navController: NavController, context: Context) {
                     Icon(Icons.Filled.ShoppingCart, contentDescription = "My Cart")
                 }
 
-                IconButton(onClick = { /**/ }) {
+                IconButton(onClick = { navController.navigate("purchasesScreen") }) {
                     Icon(Icons.Filled.Favorite, contentDescription = "My Purchases")
                 }
             }
@@ -547,8 +559,175 @@ fun shoppingCartScreen(navController: NavController, context: Context) {
                             }
                         }
                     }
-                    Button(onClick = { /*TODO*/ }) {
+                    Button(onClick = { navController.navigate("checkOutScreen") }) {
                         Text(text = "Go To Checkout")
+                    }
+                }
+            }
+        }
+    )
+}
+
+/*
+* add each item in cartItems to purchasedItems
+* then empty out the cartItems list
+* */
+fun addToPurchasedItems(cartItems: ArrayList<Item>) {
+    for (item in cartItems) {
+        purchasedItems.add(item)
+    }
+    cartItems.clear()
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun checkOutScreen(navController: NavController, context: Context) {
+    var total: Double = 0.0
+    var tax: Double = 0.0
+
+    //price change after logged in user applies coupon code
+    var totalAfterCoupon by remember { mutableStateOf(0.0) }
+
+    var couponCode by remember { mutableStateOf("") }
+
+    //builds UI with the top and bottom bars and the screen's content in between
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Checkout") }
+            )
+        },
+        bottomBar = {BottomAppBar(
+            actions = {
+                IconButton(onClick = { navController.navigate("homeScreen") }) {
+                    Icon(Icons.Filled.Home, contentDescription = "Home")
+                }
+
+                IconButton(onClick = { navController.navigate("accountScreen") }) {
+                    Icon(Icons.Filled.AccountBox, contentDescription = "My Account")
+                }
+
+                IconButton(onClick = { navController.navigate("shoppingCartScreen") }) {
+                    Icon(Icons.Filled.ShoppingCart, contentDescription = "My Cart")
+                }
+
+                IconButton(onClick = { navController.navigate("purchasesScreen") }) {
+                    Icon(Icons.Filled.Favorite, contentDescription = "My Purchases")
+                }
+            }
+        )},
+
+        //the content in the middle of the top and bottom bars
+        content = { innerPadding ->
+            Box(
+                modifier = Modifier
+                    .padding(innerPadding),
+                contentAlignment = Alignment.Center
+            ) {
+                Column {
+                    for (item in cartItems) {
+                        total += item.Price * item.Qty
+                        Row {
+                            Image(painter = painterResource(item.Image), contentDescription = null, modifier = Modifier
+                                .width(100.dp)
+                                .then(Modifier.height(100.dp)))
+                            Column {
+                                Text(text = "${item.Name}")
+                                Text(text = "$${item.Price}")
+                            }
+                            Column {
+                                Text(text = "Qty")
+                                Text(text = "${item.Qty}")
+                            }
+                            IconButton(onClick = {
+                                //removing item from cart
+                                cartItems.remove(item);
+                                itemsAddedToCart.remove(item.Name);
+                                buildToastMessage("Removed ${item.Name}", context);
+                                if (cartItems.size == 0) navController.navigate("homeScreen");
+                            }) {
+                                Icon(Icons.Filled.Clear, contentDescription = "Remove")
+                            }
+                        }
+                    }
+                    tax = total * 0.07
+                    total += tax
+
+                    Text(text = "Tax: $${tax}")
+                    Text(text = "Total: $${total}")
+
+                    Button(onClick = {
+                        buildToastMessage("Thank you for your purchase!", context);
+                        addToPurchasedItems(cartItems)
+                        navController.navigate("homeScreen");
+                    }) {
+                        Text(text = "Purchase")
+                    }
+                }
+            }
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun purchasesScreen(navController: NavController, context: Context) {
+    //builds UI with the top and bottom bars and the screen's content in between
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Your Purchases") }
+            )
+        },
+        bottomBar = {BottomAppBar(
+            actions = {
+                IconButton(onClick = { navController.navigate("homeScreen") }) {
+                    Icon(Icons.Filled.Home, contentDescription = "Home")
+                }
+
+                IconButton(onClick = { navController.navigate("accountScreen") }) {
+                    Icon(Icons.Filled.AccountBox, contentDescription = "My Account")
+                }
+
+                IconButton(onClick = { navController.navigate("shoppingCartScreen") }) {
+                    Icon(Icons.Filled.ShoppingCart, contentDescription = "My Cart")
+                }
+
+                IconButton(onClick = { /**/ }) {
+                    Icon(Icons.Filled.Favorite, contentDescription = "My Purchases")
+                }
+            }
+        )},
+
+        //the content in the middle of the top and bottom bars
+        content = { innerPadding ->
+            Box(
+                modifier = Modifier
+                    .padding(innerPadding),
+                contentAlignment = Alignment.Center
+            ) {
+                if (!loggedIn) {
+                    Text(text = "You need to be logged in to view your purchases")
+                } else if (purchasedItems.size == 0) {
+                    Text(text = "Make purchases to view them here")
+                } else {
+                    Column {
+                        for (item in purchasedItems) {
+                            Row {
+                                Image(painter = painterResource(item.Image), contentDescription = null, modifier = Modifier
+                                    .width(100.dp)
+                                    .then(Modifier.height(100.dp)))
+                                Column {
+                                    Text(text = "${item.Name}")
+                                    Text(text = "$${item.Price}")
+                                }
+                                Column {
+                                    Text(text = "Qty")
+                                    Text(text = "${item.Qty}")
+                                }
+                                Text(text = "Purchased on 4/10/2025 at 3:12 PM")
+                            }
+                        }
                     }
                 }
             }
