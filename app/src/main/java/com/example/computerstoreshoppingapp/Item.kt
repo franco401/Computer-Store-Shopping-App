@@ -3,32 +3,34 @@ package com.example.computerstoreshoppingapp
 import androidx.annotation.DrawableRes
 
 class Item {
-    var ID: String = ""
-    var Name: String = ""
-    var Price: Double = 0.0
+    var id: Int = 0
+    var short_name: String = ""
+    var full_name: String = ""
+    var category: String = ""
+    var price: Int = 0
 
     //amount in user's cart
-    var Qty: Int = 0
+    var qty: Int = 0
 
     //amount available to buy
-    var Stock: Int = 0
+    var stock: Int = 0
 
-    //image resource to render
+    var condition: String = ""
+
     @DrawableRes
-    var Image: Int = 0
+    var image: Int = 0
 
-    var Condition: String = "New"
-    var Description: String = ""
-    var Rating: Double = 0.0
-
-    //empty constructor with default values initialized above
     constructor()
 
-    constructor(ID: String, Name: String, Price: Double, Stock: Int, @DrawableRes Image: Int) {
-        this.ID = ID
-        this.Name = Name
-        this.Price = Price
-        this.Stock = Stock
-        this.Image = Image
+    constructor(id: Int, short_name: String, full_name: String, category: String, price: Int, qty: Int, stock: Int, condition: String, @DrawableRes image: Int) {
+        this.id = id
+        this.short_name = short_name
+        this.full_name = full_name
+        this.category = category
+        this.price = price
+        this.qty = qty
+        this.stock = stock
+        this.condition = condition
+        this.image = image
     }
 }

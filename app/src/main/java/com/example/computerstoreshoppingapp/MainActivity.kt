@@ -60,6 +60,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import java.sql.Connection
+import java.sql.PreparedStatement
+import java.sql.ResultSet
+import java.sql.SQLException
+import java.sql.Statement
+import java.sql.Timestamp
 
 //used for very basic authentication
 var loggedIn: Boolean = false
@@ -70,16 +76,6 @@ var globalUsername: String = ""
 //currently selected item when item clicks on an item in the home screen to view
 var currentItem: Item = Item()
 
-//arrays of items for show in home screen (more will be added later)
-var laptops = arrayOf(
-    Item("AN5", "Acer Nitro 5", 700.00, 100, R.drawable.acer_nitro_5_laptop),
-    Item("AN5", "Acer Nitro 5", 700.00, 100, R.drawable.acer_nitro_5_laptop),
-)
-
-var smartPhones = arrayOf(
-    Item("SGS25", "Samsung Galaxy S25", 860.00, 50, R.drawable.samsung_galaxy_s25),
-    Item("SGS25", "Samsung Galaxy S25", 860.00, 50, R.drawable.samsung_galaxy_s25)
-)
 
 //user's shopping cart
 var cartItems = ArrayList<Item>()
@@ -92,6 +88,47 @@ var itemsAddedToCart = ArrayList<String>()
 
 //list of user's purchased items
 var purchasedItems = ArrayList<Item>()
+
+var laptops = arrayOf(
+    Item(1, "Acer Nitro V", "Acer - Nitro V ANV15-41-R2Y3 Gaming Laptop– 15.6\" Full HD 144Hz – AMD Ryzen 5 7535HS – GeForce RTX 4050 - 16GB DDR5 – 512GB SSD - Obsidian Black", "Laptop", 94999, 0, 100, "New", R.drawable.acer_nitro_v_laptop),
+    Item(2, "ASUS TUF Gaming A15", "ASUS - TUF Gaming A15 15.6\" 144Hz FHD Gaming Laptop - AMD Ryzen 5 7535HS with 8GB Memory - NVIDIA GeForce RTX 2050 - 512GB SSD - Graphite Black", "Laptop", 69999, 0, 100, "New", R.drawable.asus_tuf_gaming_a15_laptop),
+    Item(3, "GIGABYTE G6", "GIGABYTE - G6 KF 16\" 165Hz Gaming Laptop IPS - Intel i7-13620H with 32GB RAM - NVIDIA GeForce RTX 4060 - 1TB SSD - Black," ,"Laptop", 99999, 0, 100, "New", R.drawable.gigabyte_g6_gaming_laptop),
+    Item(4, "HP OMEN 16.1", "HP OMEN - 16.1\" 165Hz Full HD Gaming Laptop - Intel Core i7 - 16GB DDR5 Memory - NVIDIA GeForce RTX 4060 - 1TB SSD - Shadow Black", "Laptop", 114999, 0, 100, "New", R.drawable.hp_omen_gaming_laptop),
+    Item(5, "Macbook Pro M4", "Apple - MacBook Pro 14-inch Apple M4 chip Built for Apple Intelligence - 16GB Memory - 512GB SSD - Space Black", "Laptop", 144900, 0, 100, "New", R.drawable.macbook_pro_m4_laptop_space_black),
+    Item(6, "Macbook Air M4", "Apple - MacBook Air 13-inch Apple M4 chip Built for Apple Intelligence - 16GB Memory - 256GB SSD - Midnight", "Laptop", 99900, 0, 100, "New", R.drawable.macbook_air_m4_laptop_midnight),
+    Item(7, "Macbook Air M3", "Apple - MacBook Air 13-inch Laptop - M3 chip Built for Apple Intelligence - 16GB Memory - 512GB SSD - Starlight", "Laptop", 109999, 0, 100, "New", R.drawable.macbook_air_m3_laptop_starlight),
+    Item(8, "Macbook Air M2", "Apple - MacBook Air 13.6\" Laptop - M2 chip Built for Apple Intelligence - 8GB Memory - 512GB SSD - Space Gray", "Laptop", 79999, 0, 100, "New", R.drawable.macbook_air_m2_laptop_space_gray),
+    Item(9, "Macbook Air M1", "Apple - MacBook Air 13.3\" Laptop - Apple M1 chip - 8GB Memory - 256GB SSD - Gold", "Laptop", 47999, 0, 100, "Refurbished", R.drawable.macbook_air_m1_laptop_gold)
+)
+
+var smartphones = arrayOf(
+    Item(10, "Samsung Galaxy S25", "Samsung - Galaxy S25 256GB (Unlocked) - Navy", "Smartphone", 77999, 0, 100, "New", R.drawable.samsung_galaxy_s25_navy),
+    Item(11, "Samsung Galaxy S25 Ultra", "Samsung - Galaxy S25 Ultra 512GB (Unlocked) - Titanium Silverblue", "Smartphone", 121999, 0, 100, "New", R.drawable.samsung_galaxy_s25_ultra_titanium_silver_blue),
+    Item(12, "Samsung Galaxy S24 FE", "Samsung - Galaxy S24 FE 128GB (Unlocked) - Graphite", "Smartphone", 49999, 0, 100, "New", R.drawable.samsung_galaxy_s24_fe_graphite),
+    Item(13, "Samsung Galaxy S24 Ultra", "Samsung - Galaxy S24 Ultra 128GB (Unlocked) - Titanium Violet", "Smartphone", 129999, 0, 100, "New", R.drawable.samsung_galaxy_s24_ultra_titanium_violet),
+    Item(14, "Google Pixel 9", "Google - Pixel 9 128GB (Unlocked) - Obsidian", "Smartphone", 64900, 0, 100, "New", R.drawable.google_pixel_9_obsidian_black),
+    Item(15, "iPhone 16", "Apple - iPhone 16 128GB - Apple Intelligence - Ultramarine (AT&T)", "Smartphone", 82999, 0, 100, "New", R.drawable.iphone_16_ultramarine),
+    Item(16, "iPhone 16 Pro", "Apple - iPhone 16 Pro 256GB - Apple Intelligence - Black Titanium (AT&T)", "Smartphone", 109999, 0, 100, "New", R.drawable.iphone_16_pro_black_titanium),
+    Item(17, "iPhone 15", "Apple - iPhone 15 128GB (Unlocked) - Black", "Smartphone", 72999, 0, 100, "New", R.drawable.iphone_15_black),
+    Item(18, "iPhone 15 Pro", "Apple - iPhone 15 Pro 128GB - Apple Intelligence - Natural Titanium (AT&T)", "Smartphone", 89999, 0, 100, "New", R.drawable.iphone_15_pro_natural_titanium),
+    Item(19, "iPhone 16 Pro Max", "Apple - iPhone 16 Pro Max 256GB - Apple Intelligence - Desert Titanium (AT&T)", "Smartphone", 119999, 0, 100, "New", R.drawable.iphone_16_pro_max_desert_titanium)
+)
+
+var accessories = arrayOf(
+    Item(20, "Samsung Galaxy S25 Case", "Samsung - Galaxy S25 Silicone Case - Black", "Accessory", 1649, 0, 100, "New", R.drawable.samsung_galaxy_s25_silicone_case_black),
+    Item(21, "Samsung Galaxy S25 Ultra Case", "Samsung - Galaxy S25 Ultra Clear Case - Transparent", "Accessory", 1499, 0, 100, "New", R.drawable.samsung_galaxy_s25_ultra_clear_case_transparent),
+    Item(22, "Samsung Galaxy S24 Case", "Samsung - Galaxy S24 Standing Grip Case - Dark Violet", "Accessory", 5999, 0, 100, "New", R.drawable.samsung_galaxy_s24_standing_grip_case_dark_violet),
+    Item(23, "Samsung Galaxy S24 Ultra Case", "Samsung - Galaxy S24 Ultra Silicone Case - Dark Violet", "Accessory", 3499, 0, 100, "New", R.drawable.samsung_galaxy_s24_ultra_silicone_case_dark_violet),
+    Item(24, "Google Pixel 9 Case", "Google - Pixel 9 / 9 Pro Case - Obsidian", "Accessory", 3499, 0, 100, "New", R.drawable.google_pixel_9_case_obsidian),
+    Item(25, "iPhone 15 Case", "OtterBox - Commuter Series Hard Shell for MagSafe for Apple iPhone 16e, Apple iPhone 15, Apple iPhone 14, and Apple iPhone 13 - Black", "Accessory", 4499, 0, 100, "New", R.drawable.iphone_15_pro_silicone_case_black),
+    Item(26, "iPhone 15 Pro Case", "Apple - iPhone 15 Pro Silicone Case with MagSafe - Black", "Accessory", 4999, 0, 100, "New", R.drawable.iphone_15_pro_silicone_case_black),
+    Item(27, "iPhone 16 Pro Case", "OtterBox - Symmetry Series Hard Shell for MagSafe for Apple iPhone 16 Pro - Black", "Accessory", 4999, 0, 100, "New", R.drawable.iphone_16_pro_otterbox_symmetry_series_hard_shell_case_black),
+    Item(28, "iPhone 16 Pro Max Case", "OtterBox - Defender Series Pro Hard Shell for MagSafe for Apple iPhone 16 Pro Max - Black", "Accessory", 6499, 0, 100, "New", R.drawable.iphone_16_pro_max_otterbox_defender_series_pro_hard_shell_case),
+    Item(29, "Samsung USB C Charger", "Samsung - 25W 6' USB Type C-to-USB Type C Device Cable - Black", "Accessory", 1999, 0, 100, "New", R.drawable.samsung_usb_type_c_cable_black),
+    Item(30, "Samsung USB C Wall Charger", "Samsung - Fast Charging 15W USB Type-C Wall Charger - Black", "Accessory", 1099, 0, 100, "New", R.drawable.samsung_fast_charging_usb_type_c_wall_charger_black),
+    Item(31, "Apple USB C Charger", "Apple - 240W USB-C Charge Cable (2 m) - White", "Accessory", 2999, 0, 100, "New", R.drawable.apple_usb_type_c_cable_white),
+    Item(32, "Apple USB C Power Adapter", "Apple - 20W USB-C Power Adapter - White", "Accessory", 1499, 0, 100, "New", R.drawable.apple_usb_type_c_power_adapterwhite)
+)
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -252,8 +289,7 @@ fun homeScreen(navController: NavController) {
                             Modifier.horizontalScroll(rememberScrollState(0))
                             ) {
                             for (item in laptops) {
-                                //clickable image
-                                Image(painter = painterResource(item.Image), contentDescription = null, modifier = Modifier
+                                Image(painter = painterResource(item.image), contentDescription = null, modifier = Modifier
                                     .width(100.dp)
                                     .then(Modifier.height(100.dp))
                                     .then(Modifier.clickable {
@@ -261,15 +297,32 @@ fun homeScreen(navController: NavController) {
                                     }))
                             }
                         }
+
                         Text("Smartphones")
 
                         //row of smartphones
                         Row (
                             Modifier.horizontalScroll(rememberScrollState(0))
                         ) {
-                            for (item in smartPhones) {
+                            for (item in smartphones) {
                                 //clickable image
-                                Image(painter = painterResource(item.Image), contentDescription = null, modifier = Modifier
+                                Image(painter = painterResource(item.image), contentDescription = null, modifier = Modifier
+                                    .width(100.dp)
+                                    .then(Modifier.height(100.dp))
+                                    .then(Modifier.clickable {
+                                        currentItem = item; navController.navigate("viewItemScreen")
+                                    }))
+                            }
+                        }
+
+                        Text("Accessories")
+
+                        //row of accessories
+                        Row (
+                            Modifier.horizontalScroll(rememberScrollState(0))
+                        ) {
+                            for (item in accessories) {
+                                Image(painter = painterResource(item.image), contentDescription = null, modifier = Modifier
                                     .width(100.dp)
                                     .then(Modifier.height(100.dp))
                                     .then(Modifier.clickable {
@@ -379,7 +432,7 @@ fun addItemToCart(itemToAdd: Item, qtyToAdd: Int) {
             * decides to add 2 more of the same item to
             * their cart
             * */
-            if (item.equals(itemToAdd.Name)) {
+            if (item.equals(itemToAdd.full_name)) {
                 itemExists = true
                 break
             }
@@ -395,15 +448,15 @@ fun addItemToCart(itemToAdd: Item, qtyToAdd: Int) {
             * just increment item1's qty by 2 instead of
             * adding a new item1 object to cartItems list
             * */
-            if (item.Name.equals(itemToAdd.Name)) {
-                item.Qty += qtyToAdd
+            if (item.full_name.equals(itemToAdd.full_name)) {
+                item.qty += qtyToAdd
             }
         }
     } else {
         //adding new item to cart
-        itemToAdd.Qty = qtyToAdd
+        itemToAdd.qty = qtyToAdd
         cartItems.add(itemToAdd)
-        itemsAddedToCart.add(itemToAdd.Name)
+        itemsAddedToCart.add(itemToAdd.full_name)
     }
 }
 
@@ -417,7 +470,7 @@ fun viewItemScreen(navController: NavController, context: Context) {
     * list of integers from 1 to current item's max quantity
     * this will be used for the dropdown menu
     * */
-    var options = List(currentItem.Stock) { "${it + 1}" }
+    var options = List(currentItem.stock) { "${it + 1}" }
 
     //the qty of an item a user wants to add to their cart
     var selectedQty by remember { mutableStateOf(1) }
@@ -426,7 +479,7 @@ fun viewItemScreen(navController: NavController, context: Context) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("${currentItem.Name}") }
+                title = { Text("${currentItem.full_name}") }
             )
         },
         bottomBar = {BottomAppBar(
@@ -457,13 +510,12 @@ fun viewItemScreen(navController: NavController, context: Context) {
                 contentAlignment = Alignment.Center
             ) {
                 Column {
-                    Image(painter = painterResource(currentItem.Image), contentDescription = null, modifier = Modifier
+                    Image(painter = painterResource(currentItem.image), contentDescription = null, modifier = Modifier
                         .width(400.dp)
                         .then(Modifier.height(100.dp)))
-                    Text(text = "$${currentItem.Price}")
-                    Text(text = "Stock: ${currentItem.Stock}")
-                    Text(text = "Rating ${currentItem.Rating}")
-                    Text(text = "Condition: ${currentItem.Condition}")
+                    Text(text = "$${(currentItem.price / 100).toDouble()}")
+                    Text(text = "Stock: ${currentItem.stock}")
+                    Text(text = "Condition: ${currentItem.condition}")
 
                     Row {
                         IconButton(onClick = {
@@ -537,22 +589,22 @@ fun shoppingCartScreen(navController: NavController, context: Context) {
                 Column {
                     for (item in cartItems) {
                         Row {
-                            Image(painter = painterResource(item.Image), contentDescription = null, modifier = Modifier
+                            Image(painter = painterResource(item.image), contentDescription = null, modifier = Modifier
                                 .width(100.dp)
                                 .then(Modifier.height(100.dp)))
                             Column {
-                                Text(text = "${item.Name}")
-                                Text(text = "$${item.Price}")
+                                Text(text = "${item.short_name}")
+                                Text(text = "$${(item.price / 100).toDouble()}")
                             }
                             Column {
                                 Text(text = "Qty")
-                                Text(text = "${item.Qty}")
+                                Text(text = "${item.qty}")
                             }
                             IconButton(onClick = {
                                 //removing item from cart
                                 cartItems.remove(item);
-                                itemsAddedToCart.remove(item.Name);
-                                buildToastMessage("Removed ${item.Name}", context);
+                                itemsAddedToCart.remove(item.full_name);
+                                buildToastMessage("Removed ${item.full_name}", context);
                                 if (cartItems.size == 0) navController.navigate("homeScreen");
                             }) {
                                 Icon(Icons.Filled.Clear, contentDescription = "Remove")
@@ -573,8 +625,11 @@ fun shoppingCartScreen(navController: NavController, context: Context) {
 * then empty out the cartItems list
 * */
 fun addToPurchasedItems(cartItems: ArrayList<Item>) {
-    for (item in cartItems) {
-        purchasedItems.add(item)
+    for (i in cartItems.indices) {
+        purchasedItems.add(cartItems[i])
+
+        //TODO: come back to this later
+        //purchasedItems.get(i).purchased = System.currentTimeMillis()
     }
     cartItems.clear()
 }
@@ -626,24 +681,25 @@ fun checkOutScreen(navController: NavController, context: Context) {
             ) {
                 Column {
                     for (item in cartItems) {
-                        total += item.Price * item.Qty
+                        item.price /= 100
+                        total += item.price * item.qty
                         Row {
-                            Image(painter = painterResource(item.Image), contentDescription = null, modifier = Modifier
+                            Image(painter = painterResource(item.image), contentDescription = null, modifier = Modifier
                                 .width(100.dp)
                                 .then(Modifier.height(100.dp)))
                             Column {
-                                Text(text = "${item.Name}")
-                                Text(text = "$${item.Price}")
+                                Text(text = "${item.short_name}")
+                                Text(text = "$${(item.price).toDouble()}")
                             }
                             Column {
                                 Text(text = "Qty")
-                                Text(text = "${item.Qty}")
+                                Text(text = "${item.qty}")
                             }
                             IconButton(onClick = {
                                 //removing item from cart
                                 cartItems.remove(item);
-                                itemsAddedToCart.remove(item.Name);
-                                buildToastMessage("Removed ${item.Name}", context);
+                                itemsAddedToCart.remove(item.full_name);
+                                buildToastMessage("Removed ${item.full_name}", context);
                                 if (cartItems.size == 0) navController.navigate("homeScreen");
                             }) {
                                 Icon(Icons.Filled.Clear, contentDescription = "Remove")
@@ -672,6 +728,7 @@ fun checkOutScreen(navController: NavController, context: Context) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun purchasesScreen(navController: NavController, context: Context) {
+
     //builds UI with the top and bottom bars and the screen's content in between
     Scaffold(
         topBar = {
@@ -714,18 +771,19 @@ fun purchasesScreen(navController: NavController, context: Context) {
                     Column {
                         for (item in purchasedItems) {
                             Row {
-                                Image(painter = painterResource(item.Image), contentDescription = null, modifier = Modifier
+                                Image(painter = painterResource(item.image), contentDescription = null, modifier = Modifier
                                     .width(100.dp)
                                     .then(Modifier.height(100.dp)))
                                 Column {
-                                    Text(text = "${item.Name}")
-                                    Text(text = "$${item.Price}")
+                                    Text(text = "${item.short_name}")
+                                    Text(text = "$${(item.price / 100).toDouble()}")
                                 }
                                 Column {
                                     Text(text = "Qty")
-                                    Text(text = "${item.Qty}")
+                                    Text(text = "${item.qty}")
                                 }
-                                Text(text = "Purchased on 4/10/2025 at 3:12 PM")
+                                //find a way to format this in the format: Month/Day/Year Hour:Minutes
+                                //Text(text = "Purchased on ${Timestamp(item.purchased)}")
                             }
                         }
                     }
