@@ -68,6 +68,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import java.math.RoundingMode
 import java.sql.Timestamp
@@ -157,7 +158,7 @@ class MainActivity : ComponentActivity() {
                 ) {
                     // import NavController and rememberNavController to navigate between screens
                     val navController = rememberNavController()
-                    NavHost(navController = navController, startDestination = "signUpScreen") {
+                    NavHost(navController = navController, startDestination = "loginScreen") {
                         // pass in navController so that each screen can go to other screens
                         composable("loginScreen") {
                             // pass in MainActivity's Context to access toast messages
@@ -203,7 +204,7 @@ fun signUpScreen(navController: NavController, context: Context) {
     var username by remember { mutableStateOf("") }
 
     Column {
-        Text(text = "Create your account")
+        Text(text = "Create your account", modifier = Modifier.padding(16.dp), textAlign = TextAlign.Center)
 
         OutlinedTextField(value = username, onValueChange = {username = it}, label = {Text(text = "Username")})
 
@@ -240,10 +241,11 @@ fun signUpScreen(navController: NavController, context: Context) {
             if (username.isBlank() || password.isBlank()) {
                 buildToastMessage("Your username and password can't be blank", context)
             } else if (password.length < 7) {
-                buildToastMessage("Your password is too short", context)
+                buildToastMessage("Your password can't be less than 7 characters long", context)
             } else {
                 user.username = username
                 user.password = password
+                buildToastMessage("Successfully created your account", context)
                 navController.navigate("loginScreen")
             }
         }) {
@@ -257,7 +259,7 @@ fun loginScreen(navController: NavController, context: Context) {
     var username by remember { mutableStateOf("") }
 
     Column {
-        Text(text = "Login to your account")
+        Text(text = "Login to your account", modifier = Modifier.padding(16.dp), textAlign = TextAlign.Center)
 
         OutlinedTextField(value = username, onValueChange = {username = it}, label = {Text(text = "Username")})
 
@@ -340,7 +342,7 @@ fun searchResultScreen(navController: NavController, context: Context) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("${itemsFound.size} results(s) for: ${searchTermUsed}") }
+                title = { Text("${itemsFound.size} results(s) for: ${searchTermUsed}", modifier = Modifier.padding(16.dp), textAlign = TextAlign.Center) }
             )
         },
         bottomBar = {BottomAppBar(
@@ -405,8 +407,8 @@ fun searchResultScreen(navController: NavController, context: Context) {
                                     Image(painter = painterResource(item.image), contentDescription = null, modifier = Modifier
                                         .width(100.dp)
                                         .then(Modifier.height(100.dp)))
-                                    Text(text = item.short_name)
-                                    Text(text = " $${item.price}")
+                                    Text(text = item.short_name, modifier = Modifier.padding(16.dp), textAlign = TextAlign.Center)
+                                    Text(text = " $${item.price}", modifier = Modifier.padding(16.dp), textAlign = TextAlign.Center)
                                 }
                             }
                         }
@@ -478,7 +480,7 @@ fun homeScreen(navController: NavController, context: Context) {
             ) {
                 Column {
                     Row {
-                        OutlinedTextField(value = searchBarValue, onValueChange = { searchBarValue = it }, label = {Text(text = "Search")}, modifier = Modifier.requiredWidth(325.dp))
+                        OutlinedTextField(value = searchBarValue, onValueChange = { searchBarValue = it }, label = {Text(text = "Search")}, modifier = Modifier.requiredWidth(200.dp))
                         IconButton(onClick = {
                             if (searchBarValue.isBlank() || searchBarValue.isEmpty()) {
                                 buildToastMessage("Please enter an item name", context)
@@ -796,14 +798,13 @@ fun writeReviewScreen(navController: NavController, context: Context) {
                             }
                         }
 
+                        Text(text = "Selected Qty: $selectedRating")
                         // dropdown menu to pick a rating between 1-5
                         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                             reviewRatingOptions.forEach { option ->
                                 DropdownMenuItem(text = { Text(option) }, onClick = { selectedRating = option.toInt(); expanded = false })
                             }
                         }
-
-                        Text(text = "Selected Qty: $selectedRating")
 
                         OutlinedTextField(value = reviewText, onValueChange = {reviewText = it})
                         Button(onClick = {
@@ -832,7 +833,7 @@ fun viewItemScreen(navController: NavController, context: Context) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("${currentItem.short_name}") }
+                title = { Text("${currentItem.short_name}", modifier = Modifier.padding(16.dp), textAlign = TextAlign.Center) }
             )
         },
         bottomBar = {BottomAppBar(
@@ -895,11 +896,11 @@ fun viewItemScreen(navController: NavController, context: Context) {
                     }
 
                     Row {
-                        IconButton(onClick = {
+                        Button(onClick = {
                             addItemToCart(currentItem, selectedQty);
                             addToCartToastMessage(selectedQty, context)
                         }) {
-                            Icon(Icons.Filled.ShoppingCart, contentDescription = "Add To Cart")
+                            Text(text = "Add To Cart")
                         }
 
                         // icon button used to expand dropdown menu
@@ -914,7 +915,8 @@ fun viewItemScreen(navController: NavController, context: Context) {
                             }
                         }
                         Text(text = "Selected Qty: $selectedQty")
-
+                    }
+                    Column {
                         Button(onClick = {
                             if (!loggedIn) {
                                 buildToastMessage("You need to be logged in to write a review", context)
