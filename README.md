@@ -20,7 +20,7 @@ Due to time constraints of having to work on various assignments this semester i
 
 ![Sign Up Screen](https://github.com/franco401/Computer-Store-Shopping-App/tree/main/Screenshots/sign_up_screen.PNG.png)
 ![Login Screen](https://github.com/franco401/Computer-Store-Shopping-App/tree/main/Screenshots/login_screen.PNG)
-![Home Screen](https://github.com/franco401/Computer-Store-Shopping-App/tree/main/Screenshots.PNG)
+![Home Screen](https://github.com/franco401/Computer-Store-Shopping-App/tree/main/Screenshots/home_screen.PNG)
 ![Search Result Screen](https://github.com/franco401/Computer-Store-Shopping-App/tree/main/Screenshots/search_result_screen.PNG)
 ![View Item Screen](https://github.com/franco401/Computer-Store-Shopping-App/tree/main/Screenshots/view_item_screen.PNG)
 ![Review Screen](https://github.com/franco401/Computer-Store-Shopping-App/tree/main/Screenshots/review_screen.PNG)
